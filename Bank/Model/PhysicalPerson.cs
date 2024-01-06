@@ -1,6 +1,6 @@
-﻿namespace Bank.Controllers
+﻿namespace Bank.Model
 {
-    public class PhysicalPerson:Account
+    public class PhysicalPerson : Account
     {
         public int Id { get; private set; }
         public string? Name { get; private set; }
