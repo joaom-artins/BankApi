@@ -77,7 +77,7 @@ namespace Bank.Controllers
             return NotFound();
         }
 
-        [HttpPatch ("{id:int}", Name = "Wihtdraw")]
+        [HttpPut ("{id:int}&&{amount:double}", Name = "Wihtdraw")]
         public ActionResult<PhysicalPerson> WihtDraw(int id,double amount)
         {
             var person = _dbContext.PhysicalPersons.Find(id);
