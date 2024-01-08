@@ -76,5 +76,19 @@ namespace Bank.Controllers
             _dbContext.SaveChanges();
             return NotFound();
         }
+
+        [HttpPatch ("{id:int}", Name = "Wihtdraw")]
+        public ActionResult<PhysicalPerson> WihtDraw(int id,double amount)
+        {
+            var person = _dbContext.PhysicalPersons.Find(id);
+            if(person is null)
+            {
+                return BadRequest("Conta não encontrada");
+            }
+            double totalAmount = amount + 5;
+            person.Balance-=totalAmount;
+            _dbContext.SaveChanges();
+            return Ok("O saldo da conta é "+person.Balance);
+        }
     }
 }
