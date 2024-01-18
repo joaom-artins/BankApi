@@ -17,9 +17,9 @@ public class PPController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<PhysicalPerson>> Get()
+    public async Task<ActionResult<IEnumerable<PhysicalPerson>>> Get()
     {
-        var persons = _dbContext.PhysicalPersons.ToList();
+        var persons = await _dbContext.PhysicalPersons.ToListAsync();
         if (persons is null)
         {
             return NotFound("Não há contas");
@@ -28,9 +28,9 @@ public class PPController : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = "GetPhysicalPerson")]
-    public ActionResult<PhysicalPerson> Get(int id)
+    public async Task<ActionResult<PhysicalPerson>> Get(int id)
     {
-        var personId = _dbContext.PhysicalPersons.Find(id);
+        var personId = await _dbContext.PhysicalPersons.FindAsync(id);
         if (personId is null)
         {
             return BadRequest("Conta não encontrada");
@@ -39,68 +39,68 @@ public class PPController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post(PhysicalPerson person)
+    public async Task<ActionResult<PhysicalPerson>> Post(PhysicalPerson person)
     {
         if (person is null)
         {
             return BadRequest();
         }
-        _dbContext.PhysicalPersons.Add(person);
-        _dbContext.SaveChanges();
+        await _dbContext.PhysicalPersons.AddAsync(person);
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
     [HttpPut("{id:int}")]
-    public ActionResult Put(PhysicalPerson person, int id)
+    public async Task<ActionResult<PhysicalPerson>> Put(PhysicalPerson person, int id)
     {
         if (person.Id != id)
         {
             return BadRequest("Id's diferentes");
         }
-        var personId = _dbContext.PhysicalPersons.Find(id);
+        var personId = await _dbContext.PhysicalPersons.FindAsync(id);
         person.Number = personId.Number;
         person.Name = personId.Name;
         person.Birth = personId.Birth;
         person.CPF = personId.CPF;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(personId);
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult<PhysicalPerson>> Delete(int id)
     {
-        var personId = _dbContext.PhysicalPersons.Find(id);
+        var personId = await _dbContext.PhysicalPersons.FindAsync(id);
         if (personId is null)
         {
             return BadRequest("Conta não localizada");
         }
         _dbContext.PhysicalPersons.Remove(personId);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return NotFound();
     }
 
     [HttpPut("{id:int}&{amount:double}&{tax:double}", Name = "Wihtdraw"), Tags("Withdraw")]
-    public ActionResult<PhysicalPerson> WihtDraw(int id, double amount, double tax)
+    public async Task<ActionResult<PhysicalPerson>> WihtDraw(int id, double amount, double tax)
     {
-        var person = _dbContext.PhysicalPersons.Find(id);
+        var person = await _dbContext.PhysicalPersons.FindAsync(id);
         if (person is null)
         {
             return BadRequest("Conta não encontrada");
         }
         double totalAmount = amount + tax;
         person.Balance -= totalAmount;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
     [HttpPut("{id:int}&&{amount:double}", Name = "Deposit"), Tags("Deposit")]
-    public ActionResult<PhysicalPerson> Deposit(int id, double amount)
+    public async Task<ActionResult<PhysicalPerson>> Deposit(int id, double amount)
     {
-        var person = _dbContext.PhysicalPersons.Find(id);
+        var person =await _dbContext.PhysicalPersons.FindAsync(id);
         if (person is null)
         {
             return BadRequest("Conta não encontrada");
         }
         person.Balance += amount;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using Bank.Context;
 using Bank.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bank.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class LPController:ControllerBase
+public class LPController : ControllerBase
 {
     private readonly AppDBContext _dbContext;
 
@@ -14,20 +15,20 @@ public class LPController:ControllerBase
         _dbContext = context;
     }
     [HttpGet]
-    public ActionResult<IEnumerable<LegalPerson>> Get()
+    public async Task<ActionResult<IEnumerable<LegalPerson>>> Get()
     {
-        var persons = _dbContext.LegalPersons.ToList();
+        var persons = await _dbContext.LegalPersons.ToListAsync();
         if (persons is null)
         {
             return NotFound("Não há contas");
         }
         return Ok(persons);
     }
-    
+
     [HttpGet("{id:int}", Name = "GetLegalPerson")]
-    public ActionResult<LegalPerson> Get(int id)
+    public async Task<ActionResult<LegalPerson>> Get(int id)
     {
-        var personId = _dbContext.LegalPersons.Find(id);
+        var personId = await _dbContext.LegalPersons.FindAsync(id);
         if (personId is null)
         {
             return BadRequest("Conta não encontrada");
@@ -36,65 +37,65 @@ public class LPController:ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post(LegalPerson person)
+    public async Task<ActionResult<LegalPerson>> Post(LegalPerson person)
     {
         if (person is null)
         {
             return BadRequest();
         }
-        _dbContext.LegalPersons.Add(person);
-        _dbContext.SaveChanges();
+        await _dbContext.LegalPersons.AddAsync(person);
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
     [HttpPut("{id:int}")]
-    public ActionResult Put(LegalPerson person, int id)
+    public async Task<ActionResult<LegalPerson>> Put(LegalPerson person, int id)
     {
         if (person.Id != id)
         {
             return BadRequest("Id's diferentes");
         }
-        var personId = _dbContext.LegalPersons.Find(id);
+        var personId = await _dbContext.LegalPersons.FindAsync(id);
         person.CNPJ = personId.CNPJ;
         person.CorporateReason = personId.CorporateReason;
         person.FantasyName = personId.FantasyName;
         person.Number = personId.Number;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(personId);
     }
-    [HttpDelete ("{id:int}")]
-    public ActionResult Delete(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult<LegalPerson>> Delete(int id)
     {
-        var person = _dbContext.LegalPersons.Find(id);
-        if(person is null)
+        var person = await _dbContext.LegalPersons.FindAsync(id);
+        if (person is null)
         {
             return BadRequest();
         }
         _dbContext.LegalPersons.Remove(person);
-        _dbContext.SaveChanges();
-        return NotFound();  
+        await _dbContext.SaveChangesAsync();
+        return NotFound();
     }
     [HttpPut("{id:int}&{amount:double}", Name = "WihtdrawLegalPerson"), Tags("Withdraw")]
-    public ActionResult<LegalPerson> WihtDraw(int id, double amount)
+    public async Task<ActionResult<LegalPerson>> WihtDraw(int id, double amount)
     {
-        var person = _dbContext.LegalPersons.Find(id);
+        var person = await _dbContext.LegalPersons.FindAsync(id);
         if (person is null)
         {
             return BadRequest("Conta não encontrada");
         }
         person.Balance -= amount;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
     [HttpPut("{id:int}&&{amount:double}", Name = "DepositLegalPerson"), Tags("Deposit")]
-    public ActionResult<LegalPerson> Deposit(int id, double amount)
+    public async Task<ActionResult<LegalPerson>> Deposit(int id, double amount)
     {
-        var person = _dbContext.LegalPersons.Find(id);
+        var person = await _dbContext.LegalPersons.FindAsync(id);
         if (person is null)
         {
             return BadRequest("Conta não encontrada");
         }
         person.Balance += amount;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return Ok(person);
     }
 }
